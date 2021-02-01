@@ -19,6 +19,12 @@ for line in lines:
     measurement = float(line[3])
     measurements.append(measurement)
 
+    # Data augmentation
+    image_flipped = np.fliplr(image)
+    measurement_flipped = -measurement
+    images.append(image_flipped)
+    measurements.append(measurement_flipped)
+
 X_train = np.array(images)
 y_train = np.array(measurements)
 
