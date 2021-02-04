@@ -1,30 +1,10 @@
+import os
 import csv
 import cv2
 import numpy as np
 import pandas as pd
-
-lines = []
-with open('training/driving_log.csv') as csvfile:
-    reader = csv.reader(csvfile)
-    for line in reader:
-        lines.append(line)
-
-images = []
-measurements = []
-for line in lines:
-    source_path = line[0]
-    filename = source_path.split('/')[-1]
-    current_path = 'training/IMG/' + filename
-    image = cv2.imread(current_path)
-    images.append(image)
-    measurement = float(line[3])
-    measurements.append(measurement)
-
-    # Data augmentation
-    image_flipped = np.fliplr(image)
-    measurement_flipped = -measurement
-    images.append(image_flipped)
-    measurements.append(measurement_flipped)
+from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split
 
 def load_data(csv_path, current_path):
     features = ['Center Image', 
@@ -66,12 +46,46 @@ def load_data(csv_path, current_path):
 
     return images, measurements
 
-X_train, y_train = load_data('training1/driving_log.csv')
-X_train2, y_train2 = load_data('training2/driving_log.csv')
-X_train.extend(X_train2)
-y_train.extend(y_train2)
-X_train = np.array(X_train)
-y_train = np.array(y_train)
+def load_samples(dnames):
+    log = 'driving_log.csv'
+    img = 'IMG'
+    samples = []
+    for dataset in dnames:
+        with open(os.path.join(dataset, log)) as csvfile:
+            reader = csv.reader(csvfile)
+            for line in reader:
+                for i in range(3):
+                    line[i] = os.path.join(dataset, img, line[i].split('/')[-1])
+                samples.append(line)
+    return samples
+
+def generator(samples, batch_size = 32):
+    num_samples = len(samples)
+    while 1:
+        shuffle(samples)
+        for offset in range(0, num_samples, batch_size):
+            batch_samples = samples[offset:(offset + batch_size)]
+
+            images = []
+            angles = []
+
+            for batch_sample in batch_samples:
+                center_image = cv2.imread(batch_sample[0])
+                center_angle = float(batch_sample[3])
+                images.append(center_image)
+                angles.append(center_angle)
+            
+            X_train = np.array(images)
+            y_train = np.array(angles)
+
+            yield shuffle(X_train, y_train)
+
+samples = load_samples(['training1', 'training2'])
+print('samples: {}'.format(len(samples)))
+print(samples[0])
+print(samples[-1])
+train_samples, validation_samples = train_test_split(samples, test_size=0.2)
+quit()
 
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Cropping2D
