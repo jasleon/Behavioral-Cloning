@@ -26,7 +26,7 @@ for line in lines:
     images.append(image_flipped)
     measurements.append(measurement_flipped)
 
-def load_data(path_to_csv):
+def load_data(csv_path, current_path):
     features = ['Center Image', 
                 'Left Image', 
                 'Right Image', 
@@ -36,12 +36,12 @@ def load_data(path_to_csv):
                 'Speed']
 
     # Load data from driving log
-    df = pd.read_csv(path_to_csv, names=features)
+    df = pd.read_csv(csv_path, names=features)
 
     # Read images
-    df['Center Image'] = df['Center Image'].apply(cv2.imread)
-    df['Left Image'] = df['Left Image'].apply(cv2.imread)
-    df['Right Image'] = df['Right Image'].apply(cv2.imread)
+    df['Center Image'] = df['Center Image'].apply(lambda x: cv2.imread(current_path + .split('/')[-1]))
+    df['Left Image']   =   df['Left Image'].apply(lambda x: cv2.imread(current_path + .split('/')[-1]))
+    df['Right Image']  =  df['Right Image'].apply(lambda x: cv2.imread(current_path + .split('/')[-1]))
 
     # Use multiple cameras
     images = df['Center Image'].tolist()
@@ -64,9 +64,14 @@ def load_data(path_to_csv):
     images.extend(df['Right Image'].apply(np.fliplr).tolist())
     measurements.extend(df['Steering Angle'].apply(lambda x: -(x - correction)).tolist())
 
-    return np.array(images), np.array(measurements)
+    return images, measurements
 
-X_train, y_train = load_data('training/driving_log.csv')
+X_train, y_train = load_data('training1/driving_log.csv')
+X_train2, y_train2 = load_data('training2/driving_log.csv')
+X_train.extend(X_train2)
+y_train.extend(y_train2)
+X_train = np.array(X_train)
+y_train = np.array(y_train)
 
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Cropping2D
