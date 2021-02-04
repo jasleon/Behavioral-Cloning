@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
+from math import ceil
 
 def load_data(csv_path, current_path):
     features = ['Center Image', 
@@ -19,9 +20,9 @@ def load_data(csv_path, current_path):
     df = pd.read_csv(csv_path, names=features)
 
     # Read images
-    df['Center Image'] = df['Center Image'].apply(lambda x: cv2.imread(current_path + .split('/')[-1]))
-    df['Left Image']   =   df['Left Image'].apply(lambda x: cv2.imread(current_path + .split('/')[-1]))
-    df['Right Image']  =  df['Right Image'].apply(lambda x: cv2.imread(current_path + .split('/')[-1]))
+    df['Center Image'] = df['Center Image'].apply(lambda x: cv2.imread(current_path + x.split('/')[-1]))
+    df['Left Image']   =   df['Left Image'].apply(lambda x: cv2.imread(current_path + x.split('/')[-1]))
+    df['Right Image']  =  df['Right Image'].apply(lambda x: cv2.imread(current_path + x.split('/')[-1]))
 
     # Use multiple cameras
     images = df['Center Image'].tolist()
@@ -59,7 +60,7 @@ def load_samples(dnames):
                 samples.append(line)
     return samples
 
-def generator(samples, batch_size = 32):
+def generator(samples, batch_size=32):
     num_samples = len(samples)
     while 1:
         shuffle(samples)
@@ -84,8 +85,11 @@ samples = load_samples(['training1', 'training2'])
 print('samples: {}'.format(len(samples)))
 print(samples[0])
 print(samples[-1])
-train_samples, validation_samples = train_test_split(samples, test_size=0.2)
-quit()
+train_samples, valid_samples = train_test_split(samples, test_size=0.2)
+
+batch_size = 32
+train_generator = generator(train_samples, batch_size=batch_size)
+valid_generator = generator(valid_samples, batch_size=batch_size)
 
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Cropping2D
@@ -120,6 +124,10 @@ model.add(Dense(10, activation="elu"))
 model.add(Dense(1, activation="elu"))
 
 model.compile(loss='mse', optimizer='adam')
-model.fit(X_train, y_train, validation_split=0.2, shuffle=True, epochs=8)
+model.fit_generator(train_generator,
+                    steps_per_epoch=ceil(len(train_samples)/batch_size),
+                    validation_data=valid_generator,
+                    validation_steps=ceil(len(valid_samples)/batch_size),
+                    epochs=5, verbose=1)
 
 model.save('model.h5')
