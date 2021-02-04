@@ -60,6 +60,22 @@ def load_samples(dnames):
                 samples.append(line)
     return samples
 
+def process_sample(sample, correction=0.2):
+    images = []
+    angles = []
+
+    # Read images from multiple cameras
+    center_image = cv2.imread(sample[0])
+
+    # Calculate angles using a correction factor
+    center_angle = float(sample[3])
+    
+    # Save values
+    images.append(center_image)
+    angles.append(center_angle)
+
+    return images, angles
+
 def generator(samples, batch_size=32):
     num_samples = len(samples)
     while 1:
@@ -71,10 +87,9 @@ def generator(samples, batch_size=32):
             angles = []
 
             for batch_sample in batch_samples:
-                center_image = cv2.imread(batch_sample[0])
-                center_angle = float(batch_sample[3])
-                images.append(center_image)
-                angles.append(center_angle)
+                sample_images, sample_angles = process_sample(batch_sample)
+                images.extend(sample_images)
+                angles.extend(sample_angles)
             
             X_train = np.array(images)
             y_train = np.array(angles)
@@ -128,6 +143,6 @@ model.fit_generator(train_generator,
                     steps_per_epoch=ceil(len(train_samples)/batch_size),
                     validation_data=valid_generator,
                     validation_steps=ceil(len(valid_samples)/batch_size),
-                    epochs=5, verbose=1)
+                    epochs=10, verbose=1)
 
 model.save('model.h5')
