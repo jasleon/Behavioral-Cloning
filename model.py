@@ -7,46 +7,6 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from math import ceil
 
-def load_data(csv_path, current_path):
-    features = ['Center Image', 
-                'Left Image', 
-                'Right Image', 
-                'Steering Angle', 
-                'Throttle', 
-                'Brake', 
-                'Speed']
-
-    # Load data from driving log
-    df = pd.read_csv(csv_path, names=features)
-
-    # Read images
-    df['Center Image'] = df['Center Image'].apply(lambda x: cv2.imread(current_path + x.split('/')[-1]))
-    df['Left Image']   =   df['Left Image'].apply(lambda x: cv2.imread(current_path + x.split('/')[-1]))
-    df['Right Image']  =  df['Right Image'].apply(lambda x: cv2.imread(current_path + x.split('/')[-1]))
-
-    # Use multiple cameras
-    images = df['Center Image'].tolist()
-    measurements = df['Steering Angle'].tolist()
-    
-    correction = 0.2
-    images.extend(df['Left Image'].tolist())
-    measurements.extend(df['Steering Angle'].apply(lambda x: x + correction).tolist())
-
-    images.extend(df['Right Image'].tolist())
-    measurements.extend(df['Steering Angle'].apply(lambda x: x - correction).tolist())
-
-    # Data augmentation
-    images.extend(df['Center Image'].apply(np.fliplr).tolist())
-    measurements.extend(df['Steering Angle'].apply(lambda x: -x).tolist())
-
-    images.extend(df['Left Image'].apply(np.fliplr).tolist())
-    measurements.extend(df['Steering Angle'].apply(lambda x: -(x + correction)).tolist())
-
-    images.extend(df['Right Image'].apply(np.fliplr).tolist())
-    measurements.extend(df['Steering Angle'].apply(lambda x: -(x - correction)).tolist())
-
-    return images, measurements
-
 def load_samples(dnames):
     log = 'driving_log.csv'
     img = 'IMG'
@@ -66,14 +26,30 @@ def process_sample(sample, correction=0.2):
 
     # Read images from multiple cameras
     center_image = cv2.imread(sample[0])
+    right_image  = cv2.imread(sample[1])
+    left_image   = cv2.imread(sample[2])
 
     # Calculate angles using a correction factor
     center_angle = float(sample[3])
-    
+    right_angle  = center_angle - correction
+    left_angle   = center_angle + correction
+
     # Save values
     images.append(center_image)
     angles.append(center_angle)
+    images.append(right_image)
+    angles.append(right_angle)
+    images.append(left_image)
+    angles.append(left_angle)
 
+    # Data augmentation
+    images.append(np.fliplr(center_image))
+    angles.append(-center_angle)
+    images.append(np.fliplr(right_image))
+    angles.append(-right_angle)
+    images.append(np.fliplr(left_image))
+    angles.append(-left_angle)
+    
     return images, angles
 
 def generator(samples, batch_size=32):
