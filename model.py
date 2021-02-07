@@ -29,6 +29,11 @@ def process_sample(sample, correction=0.2):
     right_image  = cv2.imread(sample[1])
     left_image   = cv2.imread(sample[2])
 
+    # Convert to RGB color space
+    center_image = cv2.cvtColor(center_image, cv2.COLOR_BGR2RGB)
+    right_image  = cv2.cvtColor(right_image,  cv2.COLOR_BGR2RGB)
+    left_image   = cv2.cvtColor(left_image,   cv2.COLOR_BGR2RGB)
+
     # Calculate angles using a correction factor
     center_angle = float(sample[3])
     right_angle  = center_angle - correction
@@ -74,8 +79,6 @@ def generator(samples, batch_size=32):
 
 samples = load_samples(['training1', 'training2'])
 print('samples: {}'.format(len(samples)))
-print(samples[0])
-print(samples[-1])
 train_samples, valid_samples = train_test_split(samples, test_size=0.2)
 
 batch_size = 32
@@ -92,7 +95,7 @@ model = Sequential()
 model.add(Cropping2D(cropping=((70, 25), (0, 0)), input_shape=(160, 320, 3)))
 # Network architecture from NVIDIA
 # Layer 0: Normalization.
-model.add(Lambda(lambda x: (x / 255.0) - 0.5, input_shape=(160, 320, 3)))
+model.add(Lambda(lambda x: (x / 127.5) - 1.0, input_shape=(160, 320, 3)))
 # Layer 1: Convolutional. Filters = 24, Filter Size = 5x5, Strides = 2x2.
 model.add(Convolution2D(24, 5, strides=(2, 2), activation="elu"))
 # Layer 2: Convolutional. Filters = 36, Filter Size = 5x5, Strides = 2x2.
