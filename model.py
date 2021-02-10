@@ -26,8 +26,8 @@ def process_sample(sample, correction=0.2):
 
     # Read images from multiple cameras
     center_image = cv2.imread(sample[0])
-    right_image  = cv2.imread(sample[1])
-    left_image   = cv2.imread(sample[2])
+    right_image  = cv2.imread(sample[2])
+    left_image   = cv2.imread(sample[1])
 
     # Convert to RGB color space
     center_image = cv2.cvtColor(center_image, cv2.COLOR_BGR2RGB)
