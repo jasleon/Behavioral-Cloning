@@ -26,34 +26,34 @@ def process_sample(sample, correction=0.2):
 
     # Read images from multiple cameras
     center_image = cv2.imread(sample[0])
-    right_image  = cv2.imread(sample[2])
     left_image   = cv2.imread(sample[1])
+    right_image  = cv2.imread(sample[2])
 
     # Convert to RGB color space
     center_image = cv2.cvtColor(center_image, cv2.COLOR_BGR2RGB)
-    right_image  = cv2.cvtColor(right_image,  cv2.COLOR_BGR2RGB)
     left_image   = cv2.cvtColor(left_image,   cv2.COLOR_BGR2RGB)
+    right_image  = cv2.cvtColor(right_image,  cv2.COLOR_BGR2RGB)
 
     # Calculate angles using a correction factor
     center_angle = float(sample[3])
-    right_angle  = center_angle - correction
     left_angle   = center_angle + correction
+    right_angle  = center_angle - correction
 
     # Save values
     images.append(center_image)
     angles.append(center_angle)
-    images.append(right_image)
-    angles.append(right_angle)
     images.append(left_image)
     angles.append(left_angle)
+    images.append(right_image)
+    angles.append(right_angle)
 
     # Data augmentation
     images.append(np.fliplr(center_image))
     angles.append(-center_angle)
-    images.append(np.fliplr(right_image))
-    angles.append(-right_angle)
     images.append(np.fliplr(left_image))
     angles.append(-left_angle)
+    images.append(np.fliplr(right_image))
+    angles.append(-right_angle)
     
     return images, angles
 
