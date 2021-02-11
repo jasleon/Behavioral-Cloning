@@ -81,7 +81,7 @@ samples = load_samples(['training1', 'training2'])
 print('samples: {}'.format(len(samples)))
 train_samples, valid_samples = train_test_split(samples, test_size=0.2)
 
-batch_size = 32
+batch_size = 128
 train_generator = generator(train_samples, batch_size=batch_size)
 valid_generator = generator(valid_samples, batch_size=batch_size)
 
@@ -95,7 +95,7 @@ model = Sequential()
 model.add(Cropping2D(cropping=((70, 25), (0, 0)), input_shape=(160, 320, 3)))
 # Network architecture from NVIDIA
 # Layer 0: Normalization.
-model.add(Lambda(lambda x: (x / 127.5) - 1.0, input_shape=(160, 320, 3)))
+model.add(Lambda(lambda x: (x / 255.0) - 0.5))
 # Layer 1: Convolutional. Filters = 24, Filter Size = 5x5, Strides = 2x2.
 model.add(Convolution2D(24, 5, strides=(2, 2), activation="elu"))
 # Layer 2: Convolutional. Filters = 36, Filter Size = 5x5, Strides = 2x2.
@@ -122,6 +122,6 @@ model.fit_generator(train_generator,
                     steps_per_epoch=ceil(len(train_samples)/batch_size),
                     validation_data=valid_generator,
                     validation_steps=ceil(len(valid_samples)/batch_size),
-                    epochs=10, verbose=1)
+                    epochs=3, verbose=1)
 
 model.save('model.h5')
