@@ -14,6 +14,8 @@ def load_samples(dnames):
     for dataset in dnames:
         with open(os.path.join(dataset, log)) as csvfile:
             reader = csv.reader(csvfile)
+            # Discard first line from the driving_log
+            next(reader)
             for line in reader:
                 for i in range(3):
                     line[i] = os.path.join(dataset, img, line[i].split('/')[-1])
@@ -77,7 +79,16 @@ def generator(samples, batch_size=32):
 
             yield shuffle(X_train, y_train)
 
-samples = load_samples(['training1', 'training2'])
+samples = load_samples(['data', 
+                        'training1',
+                        'reverse1',
+                        'training2',
+                        'reverse2',
+                        'training3',
+                        'reverse3',
+                        'curve1',
+                        'curve2'])
+
 print('samples: {}'.format(len(samples)))
 train_samples, valid_samples = train_test_split(samples, test_size=0.2)
 
