@@ -35,23 +35,68 @@ The model.py file contains the code for training and saving the convolution neur
 
 #### 1. An appropriate model architecture has been employed
 
-My model consists of a convolution neural network with 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
+My model consists of a neural network with five convolution layers. The first three convolution layers use 5x5 filter sizes and depths between 24 and 48. The last two convolution layers use 3x3 filter sizes and depths of 64.
 
-The model includes RELU layers to introduce nonlinearity (code line 20), and the data is normalized in the model using a Keras lambda layer (code line 18). 
+```python
+# Layer 1: Convolutional. Filters = 24, Filter Size = 5x5, Strides = 2x2.
+model.add(Convolution2D(24, 5, strides=(2, 2), activation="elu"))
+# Layer 2: Convolutional. Filters = 36, Filter Size = 5x5, Strides = 2x2.
+model.add(Convolution2D(36, 5, strides=(2, 2), activation="elu"))
+# Layer 3: Convolutional. Filters = 48, Filter Size = 5x5, Strides = 2x2.
+model.add(Convolution2D(48, 5, strides=(2, 2), activation="elu"))
+# Layer 4: Convolutional. Filters = 64, Filter Size = 3x3, Strides = 1x1.
+model.add(Convolution2D(64, 3, strides=(1, 1), activation="elu"))
+# Layer 5: Convolutional. Filters = 64, Filter Size = 3x3, Strides = 1x1.
+model.add(Convolution2D(64, 3, strides=(1, 1), activation="elu"))
+```
+
+The model includes ELU layers to introduce nonlinearity, and the data is normalized in the model using a Keras lambda layer. 
+
+```python
+# Layer 0: Normalization.
+model.add(Lambda(lambda x: (x / 255.0) - 0.5))
+```
+
+
 
 #### 2. Attempts to reduce overfitting in the model
 
-The model contains dropout layers in order to reduce overfitting (model.py lines 21). 
+The model contains a dropout layer to reduce overfitting.
 
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
+```python
+# Dropout
+model.add(Dropout(0.25))
+```
+
+The model was trained and validated on different data sets to ensure that the model was not overfitting.
+
+```python
+samples = load_samples(['data', 
+                        'training1',
+                        'reverse1',
+                        'training2',
+                        'reverse2',
+                        'training3',
+                        'reverse3',
+                        'curve1',
+                        'curve2'])
+```
+
+The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 #### 3. Model parameter tuning
 
-The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 25).
+The model used an adam optimizer, so the learning rate was not tuned manually.
+
+```python
+model.compile(loss='mse', optimizer='adam')
+```
+
+
 
 #### 4. Appropriate training data
 
-Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, recovering from the left and right sides of the road ... 
+Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving and driving counter-clockwise. I also included examples of driving smoothly around curves.
 
 For details about how I created the training data, see the next section. 
 
