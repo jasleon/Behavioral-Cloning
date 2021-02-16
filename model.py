@@ -97,7 +97,7 @@ train_generator = generator(train_samples, batch_size=batch_size)
 valid_generator = generator(valid_samples, batch_size=batch_size)
 
 from keras.models import Sequential
-from keras.layers import Flatten, Dense, Lambda, Cropping2D
+from keras.layers import Flatten, Dense, Lambda, Cropping2D, Dropout
 from keras.layers.convolutional import Convolution2D
 from keras.layers.pooling import MaxPooling2D
 
@@ -117,6 +117,8 @@ model.add(Convolution2D(48, 5, strides=(2, 2), activation="elu"))
 model.add(Convolution2D(64, 3, strides=(1, 1), activation="elu"))
 # Layer 5: Convolutional. Filters = 64, Filter Size = 3x3, Strides = 1x1.
 model.add(Convolution2D(64, 3, strides=(1, 1), activation="elu"))
+# Dropout
+model.add(Dropout(0.25))
 # Flatten
 model.add(Flatten())
 # Layer 6: Fully-connected. Output = 100
