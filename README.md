@@ -161,26 +161,41 @@ Here is a visualization of the architecture
 
 To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
 
-![alt text][image2]
+<p align="center">
+<img src="examples/center_2021_01_29_04_08_38_539.jpg"/>
+</p>
 
-I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
+I then recorded the vehicle driving counter-clockwise so that the model had examples of right turns. The purpose of this recordings is to have a more balanced dataset. Here is an example of counter-clockwise driving:
 
-![alt text][image3]
-![alt text][image4]
-![alt text][image5]
+<p align="center">
+<img src="examples/center_2021_02_05_14_03_50_792.jpg"/>
+</p> 
 
-Then I repeated this process on track two in order to get more data points.
+I also recorded the vehicle while driving smoothly around curves. I wanted the model to learn to stay centered while taking curves.
 
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
+<p align="center">
+<img src="examples/center_2021_02_05_02_58_15_645.jpg"/>
+</p>
+<p align="center">
+<img src="examples/center_2021_02_05_02_58_15_720.jpg"/>
+</p>
+<p align="center">
+<img src="examples/center_2021_02_05_02_58_15_800.jpg"/>
+</p> 
 
-![alt text][image6]
-![alt text][image7]
+To augment the dataset, I also flipped images and angles thinking that this would balance the training. For example, here is an image that has then been flipped:
 
-Etc ....
+<p align="center">
+<img src="examples/center_2021_01_29_04_08_38_539_flipped.jpg"/>
+</p>
 
-After the collection process, I had X number of data points. I then preprocessed this data by ...
+After the collection process, I had 23,506 number of data points. I applied these preprocessing strategies:
+
+- Convert images to RGB color space.
+- Use images from multiple cameras by using a correction factor of 0.2
+- Flip the images of all cameras and steering angles.
 
 
-I finally randomly shuffled the data set and put Y% of the data into a validation set. 
+I finally randomly shuffled the data set and put 20% of the data into a validation set.
 
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 3 as evidenced by the training and validation errors. I used an adam optimizer so that manually training the learning rate wasn't necessary.
