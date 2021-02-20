@@ -104,27 +104,58 @@ For details about how I created the training data, see the next section.
 
 #### 1. Solution Design Approach
 
-The overall strategy for deriving a model architecture was to ...
+The overall strategy for deriving a model architecture was to use a well-known model architecture and adjust it to clone my driving behavior.
 
-My first step was to use a convolution neural network model similar to the ... I thought this model might be appropriate because ...
+My first step was to use NVIDIA's network architecture for self-driving cars. This model is appropriate because it is able to perform lane following in autonomous vehicles.
 
-In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. I found that my first model had a low mean squared error on the training set but a high mean squared error on the validation set. This implied that the model was overfitting. 
+In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. I found that the mean squared error decreased in every epoch in both the training and validation sets. This was an indication that the model was a good choice. I decided to add a dropout layer to reduce overfitting when training the model with more data.
 
-To combat the overfitting, I modified the model so that ...
+The next step was to run the simulator to see how well the car was driving around track one. At first, I only used two dataset of center lane driving. However, the vehicle fell off the track when taking curves. I also noticed that the data had examples of taking only left curves.
 
-Then I ... 
+To improve the overall driving behavior of the model, I used a combination of center lane driving and driving counter-clockwise. I also included examples of driving smoothly around curves.
 
-The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, I ....
+I also applied data augmentation techniques such as using images from multiple cameras and flipping images and angle measurements.
 
 At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
 
 #### 2. Final Model Architecture
 
-The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes ...
+The final model architecture consisted of a convolution neural network with the following layers and layer sizes.
 
-Here is a visualization of the architecture (note: visualizing the architecture is optional according to the project rubric)
+| Layer           | Description                            |
+| --------------- | -------------------------------------- |
+| Input           | 160x320x3 RGB image                    |
+| Cropping        | 70x25x3 RGB image                      |
+| Normalization   | 70x25x3 normalized data values         |
+| Convolution 5x5 | 24 filters, 2x2 strides                |
+| ELU             | Non-linear activation                  |
+| Convolution 5x5 | 36 filters, 2x2 strides                |
+| ELU             | Non-linear activation                  |
+| Convolution 5x5 | 48 filters, 2x2 strides                |
+| ELU             | Non-linear activation                  |
+| Convolution 3x3 | 64 filters, 1x1 strides                |
+| ELU             | Non-linear activation                  |
+| Convolution 3x3 | 64 filters, 1x1 strides                |
+| ELU             | Non-linear activation                  |
+| Dropout         | Drops 25% of input units randomly      |
+| Flatten         | Flattens the input                     |
+| Dense           | Fully-connected layer with 100 neurons |
+| ELU             | Non-linear activation                  |
+| Dense           | Fully-connected layer with 50 neurons  |
+| ELU             | Non-linear activation                  |
+| Dense           | Fully-connected layer with 10 neurons  |
+| ELU             | Non-linear activation                  |
+| Dense           | Fully-connected layer with 1 neurons   |
+| ELU             | Non-linear activation                  |
 
-![alt text][image1]
+Here is a visualization of the architecture
+
+<p align="center">
+<img src="examples/model-architecture.png"/>
+</p>
+<p align="center">
+<b>Source:</b> <a href="https://developer.nvidia.com/blog/deep-learning-self-driving-cars/" target="_blank">End-to-End Deep Learning for Self-Driving Cars</a>
+</p>
 
 #### 3. Creation of the Training Set & Training Process
 
